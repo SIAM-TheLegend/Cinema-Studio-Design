@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ff5a00" />
+    <title>Cinematic Creative — Landing</title>
+
+    <!--
+      Typography:
+      - Headlines: Inter Black (as a stand-in for an extended grotesk)
+      - Body: Manrope (as a clean geometric stand-in for Neue Montreal)
+      Both are loaded from Google Fonts to keep this single-file setup simple.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Manrope:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg: #0c0c0c; /* Deep, quiet background */
+        --fg: #f7f7f5; /* Near-white text */
+        --muted: #b9b9b4; /* Muted text */
+        --accent: #ff5a00; /* Bold, saturated orange */
+        --line: rgba(255, 255, 255, 0.08); /* Hairline separators */
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.28);
+        --progress: 0%; /* updated via JS for scroll progress */
+      }
+
+      /* Base Reset / Layout */
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Scroll progress indicator (precise, minimal) */
+      .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: var(--progress);
+        background: var(--accent);
+        z-index: 1000;
+        transition: width 0.15s ease;
+      }
+
+      /* Subtle grid helpers */
+      .container {
+        width: min(1200px, 92vw);
+        margin-inline: auto;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        backdrop-filter: saturate(160%) blur(6px);
+        background: linear-gradient(to bottom, rgba(12, 12, 12, 0.9), rgba(12, 12, 12, 0.4));
+        border-bottom: 1px solid var(--line);
+        z-index: 900;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 0;
+      }
+      .brand {
+        font-family: "Inter", sans-serif;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+      }
+      .brand span {
+        color: var(--accent);
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        margin-left: 24px;
+        font-size: 14px;
+        position: relative;
+      }
+      nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        height: 1px;
+        width: 0%;
+        background: var(--accent);
+        transition: width 200ms ease;
+      }
+      nav a:hover::after {
+        width: 100%;
+      }
+
+      /* Hero */
+      .hero {
+        position: relative;
+        padding: 12vh 0 18vh;
+        overflow: hidden;
+      }
+      .hero-inner {
+        position: relative;
+      }
+      .eyebrow {
+        color: var(--muted);
+        letter-spacing: 0.22em;
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+      .headline {
+        font-family: "Inter", sans-serif;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        line-height: 0.94;
+        font-size: clamp(44px, 8vw, 120px);
+        margin: 14px 0 22px;
+        position: relative;
+        display: inline-block;
+      }
+      /* Cursor-following underline */
+      .underline-follow {
+        position: absolute;
+        left: 0;
+        bottom: -10px;
+        height: 4px;
+        width: 120px;
+        background: var(--accent);
+        transform: translateX(0);
+        transition: opacity 240ms ease;
+        opacity: 0;
+        border-radius: 2px;
+      }
+      .headline:hover .underline-follow {
+        opacity: 1;
+      }
+
+      .subhead {
+        max-width: 56ch;
+        color: var(--muted);
+        font-size: clamp(16px, 2vw, 18px);
+      }
+
+      .cta-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 34px;
+      }
+      .btn {
+        --padX: 22px;
+        --padY: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: var(--padY) var(--padX);
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--fg);
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 12px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
+      }
+      .btn::after {
+        /* tiny motion line */
+        content: "";
+        position: absolute;
+        height: 2px;
+        width: 22px;
+        background: var(--accent);
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%) translateX(-120%);
+        transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .btn:hover {
+        border-color: rgba(255, 90, 0, 0.5);
+        background: rgba(255, 90, 0, 0.06);
+      }
+      .btn:hover::after {
+        transform: translateY(-50%) translateX(0);
+      }
+
+      /* Movie title-like intro for CTA container */
+      .title-seq {
+        opacity: 0;
+        transform: translateY(14px);
+        letter-spacing: 0.24em;
+      }
+      .title-seq.ready {
+        animation: titleIn 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms forwards;
+      }
+      @keyframes titleIn {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+          letter-spacing: 0.24em;
+        }
+        60% {
+          opacity: 1;
+          transform: translateY(0);
+          letter-spacing: 0.08em;
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+          letter-spacing: 0.06em;
+        }
+      }
+
+      /* Parallax helpers */
+      [data-parallax] {
+        will-change: transform;
+      }
+
+      /* Reveal on view */
+      .reveal {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 700ms ease;
+      }
+      .reveal.in-view {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .section {
+        padding: 110px 0;
+        border-top: 1px solid var(--line);
+      }
+      .section-title {
+        font-family: "Inter", sans-serif;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 26px;
+      }
+
+      /* Services — Abstract, morphy icons */
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      @media (max-width: 900px) {
+        .services-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .service {
+        background: #0f0f0f;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        transition: transform 300ms ease, background 300ms ease;
+      }
+      .service:hover {
+        transform: translateY(-4px);
+        background: #111;
+      }
+      .icon-blob {
+        width: 68px;
+        height: 68px;
+        border-radius: 28% 72% 42% 58% / 52% 34% 66% 48%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 90, 0, 0.75), rgba(255, 90, 0, 0.18));
+        filter: saturate(1.4) hue-rotate(-8deg);
+        transition: border-radius 600ms ease, transform 600ms ease, filter 600ms ease;
+      }
+      .service.in-view .icon-blob {
+        /* slight morph on scroll */
+        border-radius: 44% 56% 36% 64% / 46% 40% 60% 54%;
+        transform: rotate(3deg) scale(1.04);
+        filter: saturate(1.6) hue-rotate(4deg);
+      }
+      .service h4 {
+        margin: 14px 0 6px;
+        font-family: "Inter", sans-serif;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .service p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      /* Testimonial stripe — ultra-minimal moving text */
+      .stripe {
+        background: #ffffff;
+        color: #0b0b0b;
+        overflow: hidden;
+        border-top: 1px solid #efefef;
+        border-bottom: 1px solid #efefef;
+      }
+      .marquee {
+        display: flex;
+        gap: 48px;
+        white-space: nowrap;
+        will-change: transform;
+        animation: slide 24s linear infinite;
+        padding: 14px 0;
+      }
+      .marquee span {
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      @keyframes slide {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Reduced motion preference */
+      @media (prefers-reduced-motion: reduce) {
+        .marquee {
+          animation: none;
+        }
+        .reveal,
+        .title-seq {
+          transition: none;
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+        [data-parallax] {
+          transform: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Precise, minimal progress line at top -->
+    <div class="progress" aria-hidden="true"></div>
+
+    <header>
+      <div class="container nav">
+        <div class="brand">STUDIO<span>·</span>CINEMA</div>
+        <nav aria-label="Primary">
+          <a href="#work">Work</a>
+          <a href="#services">Services</a>
+          <a href="#words">Words</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero container">
+        <div class="hero-inner">
+          <div class="eyebrow reveal" data-parallax data-speed="0.12">CREATIVE AGENCY — FILMIC WEB</div>
+          <h1 class="headline reveal" id="headline">
+            DESIGN IN TENSION<br />
+            MOTION IN SILENCE
+            <span class="underline-follow" id="underline"></span>
+          </h1>
+          <p class="subhead reveal" style="max-width: 60ch">We build editorial, cinematic web for brands who want to feel like a short film — not a website. No scroll hijacking. Just fluid, intentional motion, whitespace, and disruption.</p>
+          <div class="cta-row title-seq" id="cta-seq">
+            <button class="btn">See Work</button>
+            <button class="btn">Start a Project</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SERVICES -->
+      <section id="services" class="section container">
+        <h3 class="section-title reveal">Abstract Services</h3>
+        <div class="services-grid">
+          <div class="service reveal">
+            <div class="icon-blob" aria-hidden="true"></div>
+            <h4>Direction & Narrative</h4>
+            <p>Creative direction with editorial pace. Motion as punctuation, not decoration.</p>
+          </div>
+          <div class="service reveal">
+            <div class="icon-blob" aria-hidden="true"></div>
+            <h4>Interactive Systems</h4>
+            <p>Lightweight parallax, precise triggers, and a library of intentional micro-motions.</p>
+          </div>
+          <div class="service reveal">
+            <div class="icon-blob" aria-hidden="true"></div>
+            <h4>Identity & Web</h4>
+            <p>Grotesk headline systems, quiet body type, and a saturated orange for exact moments.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIAL STRIPE -->
+      <section id="words" class="stripe" aria-label="Testimonials">
+        <div class="marquee">
+          <span>“They design in silence — it hits harder.” — Film Brand</span>
+          <span>“Editorial web that feels like a title sequence.” — Studio Lead</span>
+          <span>“Cinematic, not cinematic-like.” — Creative Director</span>
+          <span>“They design in silence — it hits harder.” — Film Brand</span>
+          <span>“Editorial web that feels like a title sequence.” — Studio Lead</span>
+          <span>“Cinematic, not cinematic-like.” — Creative Director</span>
+        </div>
+      </section>
+    </main>
+    <script>
+      //
+      // Cinematic Interactions — no scroll hijacking, only precise triggers
+      // ---------------------------------------------------------------
+      (function () {
+        const root = document.documentElement;
+
+        // 1) Scroll progress (precise, subtle)
+        const onScroll = () => {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = Math.max(0, Math.min(1, scrollTop / docHeight));
+          root.style.setProperty("--progress", (progress * 100).toFixed(2) + "%");
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+
+        // 2) View reveal (fade-in + slight rise)
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add("in-view");
+                if (e.target.classList.contains("service")) {
+                  // Services: morphy icons slightly when in view
+                  e.target.classList.add("in-view");
+                }
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px", threshold: 0.08 }
+        );
+        document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+        // 3) Lightweight parallax based on data-speed attribute
+        const parallaxEls = Array.from(document.querySelectorAll("[data-parallax]"));
+        const parallax = () => {
+          const top = window.scrollY;
+          for (const el of parallaxEls) {
+            const speed = parseFloat(el.getAttribute("data-speed") || "0.08");
+            const y = top * speed;
+            el.style.transform = `translate3d(0, ${y}px, 0)`;
+          }
+        };
+        window.addEventListener("scroll", parallax, { passive: true });
+        parallax();
+
+        // 4) Headline underline follows cursor (vibrant orange bar)
+        const headline = document.getElementById("headline");
+        const underline = document.getElementById("underline");
+        const moveUnderline = (ev) => {
+          const rect = headline.getBoundingClientRect();
+          const x = ev.clientX - rect.left - underline.offsetWidth / 2;
+          underline.style.transform = `translateX(${Math.max(0, Math.min(rect.width - underline.offsetWidth, x))}px)`;
+        };
+        headline.addEventListener("mousemove", moveUnderline);
+        headline.addEventListener("mouseleave", () => {
+          underline.style.opacity = "0";
+        });
+        headline.addEventListener("mouseenter", () => {
+          underline.style.opacity = "1";
+        });
+
+        // 5) Movie title-like entrance for CTA row
+        const cta = document.getElementById("cta-seq");
+        requestAnimationFrame(() => {
+          cta.classList.add("ready");
+        });
+
+        // 6) Pause marquee on hover for accessibility
+        const marquee = document.querySelector(".marquee");
+        if (marquee) {
+          marquee.addEventListener("mouseenter", () => (marquee.style.animationPlayState = "paused"));
+          marquee.addEventListener("mouseleave", () => (marquee.style.animationPlayState = "running"));
+        }
+      })();
+    </script>
+  </body>
+</html>
